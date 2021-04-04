@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  database_ignite:
+    image: postgres
+    container_name: db_challenge_04_tests
+    ports:
+      - 5432:5432
+    environment: 
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=fin_api
+    volumes: 
+      - pgdata:/data/postgres
+    networks:
+      app_net:
+        ipv4_address: 172.16.238.10
+
+volumes: 
+  pgdata:
+    driver: local
+
+networks:
+  app_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.16.238.0/24"
+        - subnet: "2001:3984:3989::/64"
