@@ -45,13 +45,13 @@ describe("Get Balance Use Case", () => {
 
   const getRandom = (min:number, max:number) => Math.floor(Math.random() * (max - min + 1)) + min
 
-  const operationsGenerator = (): IOperationGenerator[] =>{
-    const NUMBER_GENERATOR =getRandom(5, 15)
+  const operationsGenerator = (min:number, max:number): IOperationGenerator[] =>{
+    const NUMBER_GENERATOR =getRandom(min, max)
     const operations = []
 
     for(let i = 0; i < NUMBER_GENERATOR; i++){
       operations.push({
-        amount: getRandom(50, 1000),
+        amount: 500,
         description: "Test"
       })
     }
@@ -66,6 +66,26 @@ describe("Get Balance Use Case", () => {
     const results = await Promise.all( operations.map((operation)=> 
       createStatementUseCase.execute({
         type: OperationType.DEPOSIT,
+        user_id,
+        amount: operation.amount,
+        description: operation.description
+      })
+    ))
+    
+    const total = results.reduce((previous, current) => {
+      return previous += current.amount
+    },0)
+    
+    return total
+  }
+
+  const operationsGeneratorWithdraw = async (
+    operations:IOperationGenerator[], 
+    user_id: string
+  ): Promise<number > => {
+    const results = await Promise.all( operations.map((operation)=> 
+      createStatementUseCase.execute({
+        type: OperationType.WITHDRAW,
         user_id,
         amount: operation.amount,
         description: operation.description
@@ -96,7 +116,10 @@ describe("Get Balance Use Case", () => {
   it("must be able to get balance per existing user using the user ID", async() => {
     const user = await createUserUseCase.execute(userData)
     
-    const amountTotal = await operationsGeneratorDeposit(operationsGenerator(), `${user.id}`)
+    const amountDepositTotal = await operationsGeneratorDeposit(operationsGenerator(6, 10), `${user.id}`)
+    const amountWithdrawTotal = await operationsGeneratorWithdraw(operationsGenerator(1,5), `${user.id}`)
+
+    const amountTotal = amountDepositTotal - amountWithdrawTotal
 
     const {balance} = await getBalanceUseCase.execute({user_id: `${user.id}`})
 
