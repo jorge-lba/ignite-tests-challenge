@@ -63,7 +63,7 @@ describe("Create Statement Use Case", () => {
       .rejects.toBeInstanceOf(CreateStatementError.UserNotFound)
   })
 
-  it("should no be able to create a new statement it if user not exists", async () => {
+  it("should no be able to create a new statement it if insufficient funds", async () => {
     const user = await createUserUseCase.execute(userData)
 
     await expect(async () => await createStatementUseCase.execute({
