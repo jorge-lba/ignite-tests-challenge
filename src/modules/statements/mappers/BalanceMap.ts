@@ -8,7 +8,8 @@ export class BalanceMap {
       description,
       type,
       created_at,
-      updated_at
+      updated_at,
+      transfer
     }) => (
       {
         id,
@@ -16,7 +17,8 @@ export class BalanceMap {
         description,
         type,
         created_at,
-        updated_at
+        updated_at,
+        transfer
       }
     ));
 

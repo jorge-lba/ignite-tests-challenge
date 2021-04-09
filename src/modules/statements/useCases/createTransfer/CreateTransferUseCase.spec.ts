@@ -90,7 +90,7 @@ describe("Create Transfer Use Case", () => {
       amount: 5000,
     })
     
-    await createTransferUseCase.execute({
+    await createTransferUseCase.execute({ 
       id: `${userSender.id}`,
       sender_id: `${userReceiver.id}`,
       amount: 3000,

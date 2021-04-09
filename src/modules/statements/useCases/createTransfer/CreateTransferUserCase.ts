@@ -1,3 +1,4 @@
+import { inject, injectable } from "tsyringe";
 import { AppError } from "../../../../shared/errors/AppError";
 import { IUsersRepository } from "../../../users/repositories/IUsersRepository";
 import { Transfer } from "../../entities/Transfer";
@@ -5,10 +6,14 @@ import { IStatementsRepository } from "../../repositories/IStatementsRepository"
 import { ITransfersRepository } from "../../repositories/ITransfersRepository";
 import { ICreateTransferDTO } from "./ICreateTransferDTO";
 
+@injectable()
 export class CreateTransferUseCase {
   constructor(
+    @inject("UsersRepository")
     private usersRepository: IUsersRepository,
+    @inject("StatementsRepository")
     private statementsRepository: IStatementsRepository,
+    @inject("TransfersRepository")
     private transfersRepository: ITransfersRepository
   ){}
 

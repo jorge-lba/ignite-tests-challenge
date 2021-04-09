@@ -47,7 +47,7 @@ describe("Create Statement Use Case", () => {
 
   it("should be able to get one statement operation", async () => {
     await request(app).post("/api/v1/users").send(userData)
-    
+   
     const responseAuthenticate = await request(app).post("/api/v1/sessions").send({
       email: userData.email,
       password: userData.password
