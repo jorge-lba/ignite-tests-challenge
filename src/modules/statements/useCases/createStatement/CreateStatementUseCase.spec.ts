@@ -2,6 +2,7 @@ import { InMemoryUsersRepository } from "../../../users/repositories/in-memory/I
 import { CreateUserUseCase } from "../../../users/useCases/createUser/CreateUserUseCase"
 import { ICreateUserDTO } from "../../../users/useCases/createUser/ICreateUserDTO"
 import { InMemoryStatementsRepository } from "../../repositories/in-memory/InMemoryStatementsRepository"
+import { InMemoryTransfersRepository } from "../../repositories/in-memory/inMemoryTransfersRepository"
 import { CreateStatementError } from "./CreateStatementError"
 import { CreateStatementUseCase } from "./CreateStatementUseCase"
 
@@ -31,14 +32,16 @@ describe("Create Statement Use Case", () => {
     password: "test123"
   }
   
+  let transfersRepositoryInMemory: InMemoryTransfersRepository
   let usersRepositoryInMemory: InMemoryUsersRepository
   let statementsRepositoryInMemory: InMemoryStatementsRepository
   let createUserUseCase: CreateUserUseCase
   let createStatementUseCase: CreateStatementUseCase
 
   beforeEach(() => {
+    transfersRepositoryInMemory = new InMemoryTransfersRepository()
     usersRepositoryInMemory = new InMemoryUsersRepository()
-    statementsRepositoryInMemory = new InMemoryStatementsRepository()
+    statementsRepositoryInMemory = new InMemoryStatementsRepository(transfersRepositoryInMemory)
     createUserUseCase = new CreateUserUseCase(usersRepositoryInMemory)
     createStatementUseCase = new CreateStatementUseCase(usersRepositoryInMemory,statementsRepositoryInMemory)
   })

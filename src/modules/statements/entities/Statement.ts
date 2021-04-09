@@ -33,6 +33,10 @@ export class Statement {
   @Column('decimal', { precision: 5, scale: 2 })
   amount: number;
 
+  @Column()
+  transfer_id: string;
+
+
   @Column({ type: 'enum', enum: OperationType })
   type: OperationType;
 
