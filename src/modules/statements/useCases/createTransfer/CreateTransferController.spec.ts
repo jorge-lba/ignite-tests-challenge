@@ -1,7 +1,7 @@
 import request from "supertest"
 import jwt from "jsonwebtoken"
 
-import { Connection, createConnection } from "typeorm"
+import { Connection, createConnection, LessThanOrEqual } from "typeorm"
 
 import { ICreateUserDTO } from "../../../users/useCases/createUser/ICreateUserDTO"
 import { v4 as uuid } from "uuid"
@@ -76,7 +76,7 @@ describe("Create Transfer Use Case", () => {
       password: userDataReceiver.password
     })
 
-    const dp = await request(app).post("/api/v1/statements/deposit")
+    await request(app).post("/api/v1/statements/deposit")
     .send({
       amount: 500,
       description: statementData.description
@@ -92,53 +92,45 @@ describe("Create Transfer Use Case", () => {
       Authorization: `Bearer ${token}`,
     })
 
-    const response = await request(app).get("/api/v1/statements/balance")
+    const balance = await request(app).get("/api/v1/statements/balance")
       .set({
         Authorization: `Bearer ${userSenderAuth.body.token}`,
       })
 
-    console.log(transfer.body)
-    console.log(response.body.statement)
+    expect(transfer.body.amount).toEqual(50)
+    expect(transfer.body.description).toEqual("Test Transfer")
+    expect(transfer.body).toHaveProperty("id")
+    expect(transfer.body).toHaveProperty("sender_id")
+    expect(transfer.body).toHaveProperty("transfer_id")
+
+    expect(balance.body.balance).toEqual(450)
 
   })
 
-  // it("the balance must correspond to the transfer made", async () => {
-  //   const userSender = await createUserUseCase.execute(userDataSender)
-  //   const userReceiver = await createUserUseCase.execute(userDataReceiver)
+  it("should no be able to create a new transfer if it is balance sender user below necessary", async () => {
+    await request(app).post("/api/v1/users").send(userDataSender)
+    await request(app).post("/api/v1/users").send(userDataReceiver)
 
-  //   await statementsRepositoryInMemory.create({
-  //     ...statementData,
-  //     user_id: `${userSender.id}`,
-  //     amount: 5000,
-  //   })
-    
-  //   await createTransferUseCase.execute({ 
-  //     id: `${userSender.id}`,
-  //     sender_id: `${userReceiver.id}`,
-  //     amount: 3000,
-  //     description: "Test Transfer"
-  //   })
+    const userSenderAuth = await request(app).post("/api/v1/sessions").send({
+      email: userDataSender.email,
+      password: userDataSender.password
+    })
 
-  //   const senderBalancer = await statementsRepositoryInMemory.getUserBalance({user_id: `${userSender.id}`,with_statement: true})
-  //   const receiverBalancer = await statementsRepositoryInMemory.getUserBalance({user_id: `${userReceiver.id}`, with_statement: true})
+    const token = userSenderAuth.body.token
 
-  //   console.log(senderBalancer)
-  //   console.log(receiverBalancer)
+    const userReceiverAuth = await request(app).post("/api/v1/sessions").send({
+      email: userDataReceiver.email,
+      password: userDataReceiver.password
+    })
 
-  //   expect(senderBalancer.balance).toBe(2000)
-  //   expect(receiverBalancer.balance).toBe(3000)
-  // })
+    const response = await request(app).post(`/api/v1/statements/transfer/${userReceiverAuth.body.user.id}`).send({
+      amount: 3000,
+      description: "Test Transfer"
+    }).set({
+      Authorization: `Bearer ${token}`,
+    })
 
-  // it("should no be able to create a new transfer if it is balance sender user below necessary ", async () => {
-  //   const userSender = await createUserUseCase.execute(userDataSender)
-  //   const userReceiver = await createUserUseCase.execute(userDataReceiver)
-
-  //   await expect(async () => await createTransferUseCase.execute({
-  //     id: `${userSender.id}`,
-  //     sender_id: `${userReceiver.id}`,
-  //     amount: 3000,
-  //     description: "Test Transfer"
-  //   })).rejects.toBeInstanceOf(AppError)
-
-  // })
+    expect(response.body.message).toEqual('Balance below necessary.')
+   
+  })
 })

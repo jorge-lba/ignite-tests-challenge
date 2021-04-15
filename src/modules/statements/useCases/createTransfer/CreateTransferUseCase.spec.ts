@@ -97,8 +97,8 @@ describe("Create Transfer Use Case", () => {
       description: "Test Transfer"
     })
 
-    const senderBalancer = await statementsRepositoryInMemory.getUserBalance({user_id: `${userSender.id}`,with_statement: true})
-    const receiverBalancer = await statementsRepositoryInMemory.getUserBalance({user_id: `${userReceiver.id}`, with_statement: true})
+    const senderBalancer = await statementsRepositoryInMemory.getUserBalance({user_id: `${userSender.id}`})
+    const receiverBalancer = await statementsRepositoryInMemory.getUserBalance({user_id: `${userReceiver.id}`,})
 
     expect(senderBalancer.balance).toBe(2000)
     expect(receiverBalancer.balance).toBe(3000)
